@@ -10,7 +10,7 @@ function showHelp {
 	echo ""
 	echo "Options:"
 	echo "    -h, --help         show this help message and exit"
-	echo "    --only-tesseract   install Tesseract only without dependecies"
+	echo "    --tesseract-only   install Tesseract only without dependecies"
 }
 
 function installTesseractAndDependecies {
@@ -89,9 +89,11 @@ function installTesseract {
 	unzip $TESSERACT_ARC
 	cd $TESSERACT_DIR
 	./autogen.sh
-	./configure
-	LDFLAGS="-L/usr/local/lib"
-	TSLAGS="-I/usr/local/include"
+	export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+	export LIBLEPT_HEADERSDIR=/usr/local/include
+	./configure --with-extra-includes=/usr/local/include --with-extra-libraries=/usr/local/lib
+	export LDFLAGS="-L/usr/local/lib"
+	export TSLAGS="-I/usr/local/include"
 	make
 	make install
 	ldconfig
