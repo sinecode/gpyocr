@@ -18,9 +18,6 @@ from PIL import Image
 __all__ = ('tesseract_ocr')
 
 
-SUPPORTED_FORMATS = ('.gif', '.png', '.jpg', '.jpeg', '.tif', '.tiff')
-
-
 def tesseract_ocr(image, lang='', psm=None, config=''):
     '''Execute a Tesseract call
 
@@ -61,7 +58,7 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
         reader = csv.DictReader(f, delimiter='\t', quotechar='|')
         text_line = []
         for row in reader:
-            c = int(row['conf'])
+            c = float(row['conf'])
             if c > 0:
                 text_line.append(row['text'])
                 conf += c
@@ -69,8 +66,9 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
             else:
                 text.append(' '.join(c for c in text_line))
                 text_line = []
+        text.append(' '.join(c for c in text_line))
     if conf_num > 0:
-        conf = int(conf / conf_num)
+        conf = conf / conf_num
 
     # remove the two temporary files: image and output file
     if not isinstance(image, str):
@@ -81,11 +79,13 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
     return '\n'.join(line for line in text).strip(), conf
 
 
+SUPPORTED_FORMATS = ('gif', 'png', 'jpg', 'jpeg', 'tif', 'tiff')
+
+
 def _save_image(image):
     # check if it's a valid image path
     if isinstance(image, str):
-        __, ext = os.path.splitext(image)
-        if ext.lower() not in SUPPORTED_FORMATS:
+        if not image.lower().endswith(SUPPORTED_FORMATS):
             raise Exception('{} is not a valid image'.format(image))
         return image
 

@@ -21,5 +21,5 @@ setup(
         'console_scripts': [
             'pyocr = pyocr.__main__:main'
         ]
-    }
+    },
 )

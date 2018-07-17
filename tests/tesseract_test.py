@@ -37,7 +37,7 @@ def test_empty_image(image):
 def test_tesseract_ocr(image):
     text, conf = pyocr.tesseract_ocr(image, lang='eng', psm=4)
     assert len(text) >= 10
-    assert '\n' in text
+    assert text.count('\n') == 11  # text of 12 lines
     assert 0 <= conf <= 100
 
 
