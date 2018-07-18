@@ -1,0 +1,5 @@
+# lines and modules to exclude from the coverage
+
+[run]
+
+omit = pyocr/__main__.py

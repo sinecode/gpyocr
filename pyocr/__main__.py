@@ -12,11 +12,11 @@ import pyocr
 def main():
     parser = argparse.ArgumentParser(
         description='Process OCR with Tesseract or Google Vision OCR')
+    parser.add_argument(dest='filepath', action='store',
+                        help='path to the image where to perform OCR')
     parser.add_argument(dest='ocrengine',
                         choices={'tesseract', 'google-vision'},
                         help='OCR engine to use')
-    parser.add_argument(dest='filepath', action='store',
-                        help='path to the image where to perform OCR')
     parser.add_argument('-v', '--version', action='version',
                         version='pyocr {}'.format(pyocr.__version__),
                         help='print the current version of pyocr')
@@ -27,8 +27,7 @@ def main():
     if args.ocrengine == 'tesseract':
         text, conf = pyocr.tesseract_ocr(args.filepath)
     elif args.ocrengine == 'google-vision':
-        print 'OCR with google-vision'
-        return
+        text, conf = pyocr.google_vision_ocr(args.filepath)
     else:
         pass  # should not be there
     end_time = time()
@@ -38,7 +37,9 @@ def main():
     print ''.center(50, '=')
     print 'Info'.center(50, '=')
     print 'Confidence: {:.2f}%'.format(conf)
-    print 'OCR engine: {}'.format(args.ocrengine)
+    print 'OCR engine: {}'.format(
+        pyocr.get_tesseract_version() if args.ocrengine == 'tesseract' \
+        else pyocr.get_google_vision_version())
     print 'Elapsed time: {:.3f} seconds'.format(end_time - start_time)
     print ''.center(50, '=')
 

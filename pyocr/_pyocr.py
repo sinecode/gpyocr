@@ -9,13 +9,34 @@ import string
 from random import choice
 import subprocess
 import csv
+from pkg_resources import resource_filename
+import base64
+import cStringIO
 
 import cv2
 import numpy as np
 from PIL import Image
+from google.cloud import vision_v1p1beta1 as vision
+import google.cloud.vision
 
 
-__all__ = ('tesseract_ocr')
+__all__ = ('tesseract_ocr', 'google_vision_ocr', 'SUPPORTED_FORMATS',
+           'get_tesseract_version', 'get_google_vision_version')
+
+
+SUPPORTED_FORMATS = ('gif', 'png', 'jpg', 'jpeg', 'tif', 'tiff')
+
+
+def get_tesseract_version():
+    return 'Tesseract {}'.format(
+        subprocess.check_output(
+            ['tesseract', '--version'],
+            stderr=subprocess.STDOUT
+        ).decode('utf-8').split()[1])
+
+
+def get_google_vision_version():
+    return 'Google Vision {}'.format(google.cloud.vision.__version__)
 
 
 def tesseract_ocr(image, lang='', psm=None, config=''):
@@ -28,7 +49,24 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
         - a numpy object (OpenCV)
         - an Image object (Pillow/PIL)
     '''
-    image_path = _save_image(image)
+    if isinstance(image, str):  # check if it's a valid image path
+        if not image.lower().endswith(SUPPORTED_FORMATS):
+            raise Exception('{} is not a valid image'.format(image))
+        else:
+            image_path = image
+    else:
+        image_path = _get_random_temp_file_name(ext='jpg')
+        if isinstance(image, np.ndarray):  # save the Numpy image
+            cv2.imwrite(image_path, image)
+        elif isinstance(image, Image.Image):  # save the PIL image
+            if not image.mode.startswith('RGB'):
+                image = image.convert('RGB')
+            image.save(image_path)
+        else:
+            raise TypeError('The image could be a string containing the '
+                            'path to the file, it could be a numpy '
+                            'object or an Image PIL object')
+
     output_path = _get_random_temp_file_name()
 
     # build Tesseract command
@@ -79,30 +117,54 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
     return '\n'.join(line for line in text).strip(), conf
 
 
-SUPPORTED_FORMATS = ('gif', 'png', 'jpg', 'jpeg', 'tif', 'tiff')
+def google_vision_ocr(image, langs=['en', 'it']):
+    '''Execute a Google Visin OCR call
 
+    Return the text recognized with Google VIson OCR and a confidence
+    value of the result.
+    The image parameter could be:
+        - a path to the image file
+        - a numpy object (OpenCV)
+        - an Image object (Pillow/PIL)
+    '''
 
-def _save_image(image):
-    # check if it's a valid image path
     if isinstance(image, str):
         if not image.lower().endswith(SUPPORTED_FORMATS):
             raise Exception('{} is not a valid image'.format(image))
-        return image
-
-    file_name = _get_random_temp_file_name(ext='jpg')
-    # save the Numpy image
-    if isinstance(image, np.ndarray):
-        cv2.imwrite(file_name, image)
-    # save the PIL image
+        with open(image, 'rb') as image_file:
+            image = image_file.read()
+    elif isinstance(image, np.ndarray):
+        # Encode the image to base64
+        image = cv2.imencode('.jpg', image)[1].tostring()
     elif isinstance(image, Image.Image):
+        # Encode the image to base64
         if not image.mode.startswith('RGB'):
             image = image.convert('RGB')
-        image.save(file_name)
+        image = np.array(image)
+        image = cv2.imencode('.jpg', image)[1].tostring()
     else:
         raise TypeError('The image could be a string containing the '
                         'path to the file, it could be a numpy '
                         'object or an Image PIL object')
-    return file_name
+
+    # Authenticate to Google Cloud Platform
+    # You have to execute:
+    #     $ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials-key.json
+    client = vision.ImageAnnotatorClient()
+
+    # Perform the request to Google Cloud Vision
+    response = client.document_text_detection(
+        vision.types.Image(content=image),
+        image_context=vision.types.ImageContext(language_hints=langs))
+
+    # Get text and confidence from response
+    text_annotation = response.full_text_annotation
+    text = text_annotation.text
+    confidence = 0
+    if len(text_annotation.pages) > 0:
+        confidence = int(
+            text_annotation.pages[0].blocks[0].confidence * 100)
+    return text.strip(), confidence
 
 
 def _get_random_temp_file_name(ext=''):
