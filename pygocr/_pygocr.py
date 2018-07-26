@@ -35,7 +35,7 @@ def get_tesseract_version():
 
 def get_google_vision_version():
     '''Get Google Vision version'''
-    return 'Google Vision {}'.format(google.cloud.vision.__version__)
+    return f'Google Vision {google.cloud.vision.__version__}'
 
 
 def tesseract_ocr(image, lang='', psm=None, config=''):
@@ -50,7 +50,7 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
     '''
     if isinstance(image, str):  # check if it's a valid image path
         if not image.lower().endswith(SUPPORTED_FORMATS):
-            raise Exception('{} is not a valid image'.format(image))
+            raise Exception(f'{image} is not a valid image')
         else:
             image_path = image
     else:
@@ -71,9 +71,9 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
     # build Tesseract command
     tesseract_cmd = ['tesseract', image_path, output_path]
     if lang:
-        tesseract_cmd.append('-l {}'.format(lang))
+        tesseract_cmd.append(f'-l {lang}')
     if psm:
-        tesseract_cmd.append('--psm={}'.format(psm))
+        tesseract_cmd.append(f'--psm={psm}')
     if config:
         tesseract_cmd.append('-c')
         tesseract_cmd.append(config)
@@ -116,7 +116,7 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
     return '\n'.join(line for line in text).strip(), conf
 
 
-def google_vision_ocr(image, langs=['en', 'it']):
+def google_vision_ocr(image, langs=None):
     '''Execute a Google Visin OCR call
 
     Return the text recognized with Google VIson OCR and a confidence
@@ -129,7 +129,7 @@ def google_vision_ocr(image, langs=['en', 'it']):
 
     if isinstance(image, str):
         if not image.lower().endswith(SUPPORTED_FORMATS):
-            raise Exception('{} is not a valid image'.format(image))
+            raise Exception(f'{image} is not a valid image')
         with open(image, 'rb') as image_file:
             image = image_file.read()
     elif isinstance(image, np.ndarray):
@@ -148,10 +148,12 @@ def google_vision_ocr(image, langs=['en', 'it']):
 
     # Authenticate to Google Cloud Platform
     # You have to execute:
-    #     $ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials-key.json
+# $ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials-key.json
     client = vision.ImageAnnotatorClient()
 
     # Perform the request to Google Cloud Vision
+    if not langs:
+        langs = ['en', 'it']
     response = client.document_text_detection(
         vision.types.Image(content=image),
         image_context=vision.types.ImageContext(language_hints=langs))
@@ -161,15 +163,14 @@ def google_vision_ocr(image, langs=['en', 'it']):
     text = text_annotation.text
     confidence = 0
     if text_annotation.pages:
-        confidence = int(
-            text_annotation.pages[0].blocks[0].confidence * 100)
+        confidence = text_annotation.pages[0].blocks[0].confidence * 100
     return text.strip(), confidence
 
 
 def _get_random_temp_file_name(ext=''):
     # generate a random string of 5 characters
     fname = ''.join(
-        choice(string.digits + string.ascii_letters) for _ in xrange(5))
+        choice(string.digits + string.ascii_letters) for _ in range(5))
     # generate a random temp file name
     return os.path.join(gettempdir(),
                         fname + os.extsep + ext if ext else fname)

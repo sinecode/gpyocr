@@ -1,24 +1,38 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 from pygocr import __version__
+
+
+with open('README.rst', 'r') as f:
+    long_description = f.read()
+
 
 setup(
     name='pygocr',
     version=__version__,
     description='Python wrapper for Tesseract OCR and Google Vision OCR',
+    long_description=long_description,
     url='https://github.com/check-emee/pygocr',
     author='Emilio Cecchini',
     author_email='cecchini.mle@gmail.com',
     keywords='OCR tesseract google vision wrapper',
     classifiers=[
-        'Programming Language :: Python :: 2.7'
+        'Programming Language :: Python :: 3.6'
     ],
-    packages=[
-        'pygocr'
-    ],
+    packages=find_packages(exclude=['tests']),
     entry_points={
         'console_scripts': [
             'pygocr = pygocr.__main__:main'
         ]
-    }
+    },
+    license='Apache 2.0',
+    install_requires=[
+        'opencv-python',
+        'Pillow',
+        'google-cloud'
+    ],
+    tests_require=[
+        'pytest',
+        'pytest-cov'
+    ]
 )

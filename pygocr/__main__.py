@@ -33,17 +33,16 @@ def main():
         pass  # should not be there
     end_time = time()
 
-    print 'OCR result'.center(50, '=')
-    print text
-    print ''.center(50, '=')
-    print 'Info'.center(50, '=')
-    print 'Confidence: {:.2f}%'.format(conf)
-    print 'OCR engine: {}'.format(
-        pygocr.get_tesseract_version() if args.ocrengine == 'tesseract' \
-        else pygocr.get_google_vision_version())
-    print 'Elapsed time: {:.3f} seconds'.format(end_time - start_time)
-    print ''.center(50, '=')
-
+    print('OCR result'.center(50, '='))
+    print(text)
+    print(''.center(50, '='))
+    print('Info'.center(50, '='))
+    print('Confidence: {:.2f}%'.format(conf))
+    print('OCR engine: {}'.format(
+        pygocr.get_tesseract_version() if args.ocrengine == 'tesseract'
+        else pygocr.get_google_vision_version()))
+    print('Elapsed time: {:.3f} seconds'.format(end_time - start_time))
+    print(''.center(50, '='))
 
 
 if __name__ == '__main__':

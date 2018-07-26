@@ -1,5 +1,0 @@
-# lines and modules to exclude from the coverage
-
-[run]
-
-omit = pygocr/__main__.py
