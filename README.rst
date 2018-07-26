@@ -1,5 +1,5 @@
 **************************
-gpyocr (Google-Python-OCR)
+Gpyocr (Google-Python-OCR)
 **************************
 
 Python wrapper for `Tesseract OCR <https://github.com/tesseract-ocr/tesseract>`_ and `Google Vision OCR <https://cloud.google.com/vision/>`_ to perform OCR on images and get a confidence value of the results.
@@ -70,7 +70,7 @@ Please see the unit tests for more examples.
 Installation
 ############
 
-gpyocr is a pip package.
+Gpyocr is a pip package.
 To install it in your Python environment run:
 ::
 

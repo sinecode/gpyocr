@@ -8,7 +8,7 @@ with open('README.rst', 'r') as f:
 
 
 setup(
-    name='gpyocr',
+    name='Gpyocr',
     version=__version__,
     description='Python wrapper for Tesseract OCR and Google Vision OCR',
     long_description=long_description,
