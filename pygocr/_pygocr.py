@@ -9,9 +9,6 @@ import string
 from random import choice
 import subprocess
 import csv
-from pkg_resources import resource_filename
-import base64
-import cStringIO
 
 import cv2
 import numpy as np
@@ -28,6 +25,7 @@ SUPPORTED_FORMATS = ('gif', 'png', 'jpg', 'jpeg', 'tif', 'tiff')
 
 
 def get_tesseract_version():
+    '''Get Tesseract version'''
     return 'Tesseract {}'.format(
         subprocess.check_output(
             ['tesseract', '--version'],
@@ -36,6 +34,7 @@ def get_tesseract_version():
 
 
 def get_google_vision_version():
+    '''Get Google Vision version'''
     return 'Google Vision {}'.format(google.cloud.vision.__version__)
 
 
@@ -161,7 +160,7 @@ def google_vision_ocr(image, langs=['en', 'it']):
     text_annotation = response.full_text_annotation
     text = text_annotation.text
     confidence = 0
-    if len(text_annotation.pages) > 0:
+    if text_annotation.pages:
         confidence = int(
             text_annotation.pages[0].blocks[0].confidence * 100)
     return text.strip(), confidence

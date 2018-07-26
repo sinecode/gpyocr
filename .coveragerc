@@ -2,4 +2,4 @@
 
 [run]
 
-omit = pyocr/__main__.py
+omit = pygocr/__main__.py
