@@ -6,11 +6,11 @@ This module contains the main method to perform OCR from command line
 import argparse
 from time import time
 
-import pygocr
+import gpyocr
 
 
 def main():
-    '''Execute pygocr from command-line'''
+    '''Execute gpyocr from command-line'''
     parser = argparse.ArgumentParser(
         description='Process OCR with Tesseract or Google Vision OCR')
     parser.add_argument(dest='filepath', action='store',
@@ -19,16 +19,16 @@ def main():
                         choices={'tesseract', 'google-vision'},
                         help='OCR engine to use')
     parser.add_argument('-v', '--version', action='version',
-                        version='pygocr {}'.format(pygocr.__version__),
-                        help='print the current version of pygocr')
+                        version='gpyocr {}'.format(gpyocr.__version__),
+                        help='print the current version of gpyocr')
 
     args = parser.parse_args()
 
     start_time = time()
     if args.ocrengine == 'tesseract':
-        text, conf = pygocr.tesseract_ocr(args.filepath)
+        text, conf = gpyocr.tesseract_ocr(args.filepath)
     elif args.ocrengine == 'google-vision':
-        text, conf = pygocr.google_vision_ocr(args.filepath)
+        text, conf = gpyocr.google_vision_ocr(args.filepath)
     else:
         pass  # should not be there
     end_time = time()
@@ -39,8 +39,8 @@ def main():
     print('Info'.center(50, '='))
     print('Confidence: {:.2f}%'.format(conf))
     print('OCR engine: {}'.format(
-        pygocr.get_tesseract_version() if args.ocrengine == 'tesseract'
-        else pygocr.get_google_vision_version()))
+        gpyocr.get_tesseract_version() if args.ocrengine == 'tesseract'
+        else gpyocr.get_google_vision_version()))
     print('Elapsed time: {:.3f} seconds'.format(end_time - start_time))
     print(''.center(50, '='))
 

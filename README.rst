@@ -1,5 +1,5 @@
 **************************
-pygocr (Python-Google-OCR)
+gpyocr (Google-Python-OCR)
 **************************
 
 Python wrapper for `Tesseract OCR <https://github.com/tesseract-ocr/tesseract>`_ and `Google Vision OCR <https://cloud.google.com/vision/>`_ to perform OCR on images and get a confidence value of the results.
@@ -11,10 +11,10 @@ Only Python 3 is supported.
 Usage
 #####
 
-The **pygocr** module have two main functions:
+The **gpyocr** module have two main functions:
 
 - `tesseract_ocr(image, lang='', psm=None, config=''):` it returns a tuple `(<text recognized>, <confidence>)` obtained with Tesseract. The parameters are the same of the `command-line Tesseract tool <https://github.com/tesseract-ocr/tesseract/wiki/Command-Line-Usage>`_ except for the output file.
-- `google_vision_ocr(image, langs=None):` it returns a tuple `(<text recognized>, <confidence>)` obtained with Google Vision API. The `langs` parameter is a list of languages to look for during the OCR process. More information about the supported languages are described on `this page <https://cloud.google.com/vision/docs/languages>`_ 
+- `google_vision_ocr(image, langs=None):` it returns a tuple `(<text recognized>, <confidence>)` obtained with Google Vision API. The `langs` parameter is a list of languages to look for during the OCR process. More information about the supported languages are described on `this page <https://cloud.google.com/vision/docs/languages>`_
 
 
 The parameter `image` could be:
@@ -29,8 +29,8 @@ It is possible to get some informations about the Tesseract and Google Vision ve
 The installation of the package also provides a command-line tool, please run
 ::
 
-    $ pygocr --help
-    
+    $ gpyocr --help
+
 for more information.
 
 
@@ -43,26 +43,26 @@ This Python script read the text in the image `tests/resources/european-test.png
 
     import cv2
     from PIL import Image
-    import pygocr
+    import gpyocr
 
     # print ('The (quick)...', 87.14)
-    print(pygocr.tesseract_ocr('tests/resources/european-test.png'))
+    print(gpyocr.tesseract_ocr('tests/resources/european-test.png'))
 
     # print ('The (quick) etc...', 98.00)
-    print(pygocr.google_vision_ocr('tests/resources/european-test.png'))
+    print(gpyocr.google_vision_ocr('tests/resources/european-test.png'))
 
     # support for OpenCV library
-    print(pygocr.tesseract_ocr(cv2.imread('tests/resources/european-test.png'))
+    print(gpyocr.tesseract_ocr(cv2.imread('tests/resources/european-test.png'))
 
     # support for Pillow library
-    print(pygocr.tesseract_ocr(Image.open('tests/resources/european-test.png'))
+    print(gpyocr.tesseract_ocr(Image.open('tests/resources/european-test.png'))
 
     # support for tesseract parameters
-    print(pygocr.tesseract_ocr('tests/resources/european-test.png'), lang='ita', psm=7, 
+    print(gpyocr.tesseract_ocr('tests/resources/european-test.png'), lang='ita', psm=7,
                                config='tessedit_char_whitelist=abc')
 
-    # detect Italian and English words with Google Vision 
-    print(pygocr.google_vision_ocr('tests/resources/european-test.png'), langs=['en, 'it'])
+    # detect Italian and English words with Google Vision
+    print(gpyocr.google_vision_ocr('tests/resources/european-test.png'), langs=['en, 'it'])
 
 Please see the unit tests for more examples.
 
@@ -70,13 +70,13 @@ Please see the unit tests for more examples.
 Installation
 ############
 
-pygocr is a pip package. 
+gpyocr is a pip package.
 To install it in your Python environment run:
 ::
 
-    $ pip install pygocr
+    $ pip install gpyocr
 
-If you want to run Tesseract with pygocr you have to install it in your system. In order to get the confidence value, pygocr needs Tesseract >= 3.05. You could install Tesseract with the bash script `tesseract_installer.sh` that you find in the repository. If you want Tesseract 3.05 (the stable version) then run:
+If you want to run Tesseract with gpyocr you have to install it in your system. In order to get the confidence value, gpyocr needs Tesseract >= 3.05. You could install Tesseract with the bash script `tesseract_installer.sh` that you find in the repository. If you want Tesseract 3.05 (the stable version) then run:
 ::
 
     $ sudo ./tesseract_installer.sh 3.05

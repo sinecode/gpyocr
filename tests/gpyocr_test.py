@@ -6,7 +6,7 @@ import cv2
 from PIL import Image
 from distutils.version import LooseVersion
 
-import pygocr
+import gpyocr
 
 empty_path = os.path.abspath(resource_filename('tests.resources', 'empty.png'))
 image_path = os.path.abspath(resource_filename('tests.resources',
@@ -20,7 +20,7 @@ image_path = os.path.abspath(resource_filename('tests.resources',
 
 @pytest.mark.tesseract
 def test_tesseract_version():
-    tesseract_name, version = pygocr.get_tesseract_version().split(' ')
+    tesseract_name, version = gpyocr.get_tesseract_version().split(' ')
     assert tesseract_name == 'Tesseract'
     assert LooseVersion(version) >= '3.05'
 
@@ -28,13 +28,13 @@ def test_tesseract_version():
 @pytest.mark.tesseract
 def test_invalid_image_tesseract():
     with pytest.raises(Exception):
-        pygocr.tesseract_ocr('invalid/path')
+        gpyocr.tesseract_ocr('invalid/path')
 
 
 @pytest.mark.tesseract
 def test_invalid_type_tesseract():
     with pytest.raises(TypeError):
-        pygocr.tesseract_ocr(342)
+        gpyocr.tesseract_ocr(342)
 
 
 @pytest.mark.tesseract
@@ -42,7 +42,7 @@ def test_invalid_type_tesseract():
     empty_path, cv2.imread(empty_path), Image.open(empty_path)
 ])
 def test_empty_image_tesseract(image):
-    text, conf = pygocr.tesseract_ocr(image)
+    text, conf = gpyocr.tesseract_ocr(image)
     assert text == ''
     assert conf == 0
 
@@ -52,7 +52,7 @@ def test_empty_image_tesseract(image):
     image_path, cv2.imread(image_path), Image.open(image_path)
 ])
 def test_tesseract_ocr(image):
-    text, conf = pygocr.tesseract_ocr(image, lang='eng', psm=4)
+    text, conf = gpyocr.tesseract_ocr(image, lang='eng', psm=4)
     assert len(text) >= 10
     assert text.count('\n') == 11  # text of 12 lines
     assert 0 <= conf <= 100
@@ -63,7 +63,7 @@ def test_tesseract_ocr(image):
     image_path, cv2.imread(image_path), Image.open(image_path)
 ])
 def test_tesseract_ocr_whitelist(image):
-    text, conf = pygocr.tesseract_ocr(image,
+    text, conf = gpyocr.tesseract_ocr(image,
                                      config='tessedit_char_whitelist=abc')
     assert 'd' not in text
     assert 'e' not in text
@@ -78,7 +78,7 @@ def test_tesseract_ocr_whitelist(image):
 
 @pytest.mark.googlevision
 def test_google_vision_version():
-    gv_version = pygocr.get_google_vision_version().split(' ')
+    gv_version = gpyocr.get_google_vision_version().split(' ')
     assert gv_version[0] + ' ' + gv_version[1] == 'Google Vision'
     assert LooseVersion(gv_version[2]) >= '0.2'
 
@@ -86,13 +86,13 @@ def test_google_vision_version():
 @pytest.mark.googlevision
 def test_invalid_image_google_vision():
     with pytest.raises(Exception):
-        pygocr.google_vision_ocr('invalid/path')
+        gpyocr.google_vision_ocr('invalid/path')
 
 
 @pytest.mark.googlevision
 def test_invalid_type_google_vision():
     with pytest.raises(TypeError):
-        pygocr.google_vision_ocr(342)
+        gpyocr.google_vision_ocr(342)
 
 
 @pytest.mark.googlevision
@@ -100,7 +100,7 @@ def test_invalid_type_google_vision():
     empty_path, cv2.imread(empty_path), Image.open(empty_path)
 ])
 def test_empty_image_google_vision(image):
-    text, conf = pygocr.google_vision_ocr(image)
+    text, conf = gpyocr.google_vision_ocr(image)
     assert text == ''
     assert conf == 0
 
@@ -110,6 +110,6 @@ def test_empty_image_google_vision(image):
     image_path, cv2.imread(image_path), Image.open(image_path)
 ])
 def test_google_vision_ocr(image, langs=['en']):
-    text, conf = pygocr.google_vision_ocr(image)
+    text, conf = gpyocr.google_vision_ocr(image)
     assert text.count('\n') == 11  # text of 12 lines
     assert 0 <= conf <= 100

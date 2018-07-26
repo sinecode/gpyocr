@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-from pygocr import __version__
+from gpyocr import __version__
 
 
 with open('README.rst', 'r') as f:
@@ -8,21 +8,23 @@ with open('README.rst', 'r') as f:
 
 
 setup(
-    name='pygocr',
+    name='gpyocr',
     version=__version__,
     description='Python wrapper for Tesseract OCR and Google Vision OCR',
     long_description=long_description,
-    url='https://github.com/check-emee/pygocr',
+    url='https://github.com/check-emee/gpyocr',
     author='Emilio Cecchini',
     author_email='cecchini.mle@gmail.com',
     keywords='OCR tesseract google vision wrapper',
     classifiers=[
-        'Programming Language :: Python :: 3.6'
+        'Programming Language :: Python :: 3.6',
+        'License :: OSI Approved :: Apache Software License',
+        'Topic :: Software Development :: Libraries :: Python Modules'
     ],
     packages=find_packages(exclude=['tests']),
     entry_points={
         'console_scripts': [
-            'pygocr = pygocr.__main__:main'
+            'gpyocr = gpyocr.__main__:main'
         ]
     },
     license='Apache 2.0',
