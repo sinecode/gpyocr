@@ -31,7 +31,7 @@ setup(
     install_requires=[
         'opencv-python',
         'Pillow',
-        'google-cloud'
+        'google-cloud-vision'
     ],
     tests_require=[
         'pytest',
