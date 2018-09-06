@@ -1,5 +1,8 @@
 import os
 from pkg_resources import resource_filename
+import string
+import subprocess
+from collections import namedtuple
 
 import pytest
 import cv2
@@ -9,8 +12,9 @@ from distutils.version import LooseVersion
 import gpyocr
 
 empty_path = os.path.abspath(resource_filename('tests.resources', 'empty.png'))
-image_path = os.path.abspath(resource_filename('tests.resources',
-                                               'european-test.png'))
+image_path = os.path.abspath(resource_filename(
+    'tests.resources', 'european-test.png'
+))
 
 
 ###############################################################################
@@ -38,9 +42,9 @@ def test_invalid_type_tesseract():
 
 
 @pytest.mark.tesseract
-@pytest.mark.parametrize('image', [
-    empty_path, cv2.imread(empty_path), Image.open(empty_path)
-])
+@pytest.mark.parametrize(
+    'image', [empty_path, cv2.imread(empty_path), Image.open(empty_path)]
+)
 def test_empty_image_tesseract(image):
     text, conf = gpyocr.tesseract_ocr(image)
     assert text == ''
@@ -48,9 +52,9 @@ def test_empty_image_tesseract(image):
 
 
 @pytest.mark.tesseract
-@pytest.mark.parametrize('image', [
-    image_path, cv2.imread(image_path), Image.open(image_path)
-])
+@pytest.mark.parametrize(
+    'image', [image_path, cv2.imread(image_path), Image.open(image_path)]
+)
 def test_tesseract_ocr(image):
     text, conf = gpyocr.tesseract_ocr(image, lang='eng', psm=4)
     assert len(text) >= 10
@@ -59,16 +63,31 @@ def test_tesseract_ocr(image):
 
 
 @pytest.mark.tesseract
-@pytest.mark.parametrize('image', [
-    image_path, cv2.imread(image_path), Image.open(image_path)
-])
+@pytest.mark.parametrize(
+    'image', [image_path, cv2.imread(image_path), Image.open(image_path)]
+)
 def test_tesseract_ocr_whitelist(image):
-    text, conf = gpyocr.tesseract_ocr(image,
-                                     config='tessedit_char_whitelist=abc')
-    assert 'd' not in text
-    assert 'e' not in text
-    assert 'a' in text
+    text, conf = gpyocr.tesseract_ocr(
+        image, config='tessedit_char_whitelist=ab'
+    )
+    for c in string.ascii_letters.replace('a', '').replace('b', ''):
+        assert c not in text
     assert 0 <= conf <= 100
+
+
+@pytest.fixture
+def tesseract_error_mock(monkeypatch):
+    def mockocr(*args, **kwargs):
+        raise subprocess.CalledProcessError(-1, 'tesseract')
+    monkeypatch.setattr(gpyocr._gpyocr.subprocess, 'check_output', mockocr)
+
+
+@pytest.mark.tesseract
+def test_tesseract_error(tesseract_error_mock):
+    with pytest.raises(RuntimeError):
+        gpyocr.get_tesseract_version()
+    with pytest.raises(RuntimeError):
+        gpyocr.tesseract_ocr(cv2.imread(image_path))
 
 
 ###############################################################################
@@ -78,9 +97,9 @@ def test_tesseract_ocr_whitelist(image):
 
 @pytest.mark.googlevision
 def test_google_vision_version():
-    gv_version = gpyocr.get_google_vision_version().split(' ')
-    assert gv_version[0] + ' ' + gv_version[1] == 'Google Vision'
-    assert LooseVersion(gv_version[2]) >= '0.2'
+    version = gpyocr.get_google_vision_version().split(' ')
+    assert version[:2] == ['Google', 'Vision']
+    assert LooseVersion(version[2]) >= '0.33.0'
 
 
 @pytest.mark.googlevision
@@ -95,21 +114,55 @@ def test_invalid_type_google_vision():
         gpyocr.google_vision_ocr(342)
 
 
+@pytest.fixture
+def google_vision_empty_image_mock(monkeypatch):
+
+    Response = namedtuple('Response', 'full_text_annotation')
+    TextAnnotation = namedtuple('TextAnnotation', 'text pages')
+
+    class ClientMock:
+        def annotate_image(self, *args, **kwargs):
+            return Response(TextAnnotation(text='', pages=[]))
+
+    monkeypatch.setattr(
+        gpyocr._gpyocr.vision, 'ImageAnnotatorClient', ClientMock
+    )
+
+
 @pytest.mark.googlevision
-@pytest.mark.parametrize('image', [
-    empty_path, cv2.imread(empty_path), Image.open(empty_path)
-])
-def test_empty_image_google_vision(image):
+@pytest.mark.parametrize(
+    'image', [empty_path, cv2.imread(empty_path), Image.open(empty_path)]
+)
+def test_empty_image_google_vision(image, google_vision_empty_image_mock):
     text, conf = gpyocr.google_vision_ocr(image)
     assert text == ''
     assert conf == 0
 
 
+@pytest.fixture
+def google_vision_ocr_mock(monkeypatch):
+
+    Response = namedtuple('Response', 'full_text_annotation')
+    TextAnnotation = namedtuple('TextAnnotation', 'text pages')
+    Page = namedtuple('TextAnnotation', 'blocks')
+    Block = namedtuple('Block', 'confidence')
+
+    class ClientMock:
+        def annotate_image(self, *args, **kwargs):
+            return Response(TextAnnotation(
+                text='\n'.join(('hey' for _ in range(12))),
+                pages=[Page(blocks=[Block(confidence=0.88)])]
+            ))
+    monkeypatch.setattr(
+        gpyocr._gpyocr.vision, 'ImageAnnotatorClient', ClientMock
+    )
+
+
 @pytest.mark.googlevision
-@pytest.mark.parametrize('image', [
-    image_path, cv2.imread(image_path), Image.open(image_path)
-])
-def test_google_vision_ocr(image, langs=['en']):
-    text, conf = gpyocr.google_vision_ocr(image)
+@pytest.mark.parametrize(
+    'image', [image_path, cv2.imread(image_path), Image.open(image_path)]
+)
+def test_google_vision_ocr(image, google_vision_ocr_mock):
+    text, conf = gpyocr.google_vision_ocr(image, langs=['en'])
     assert text.count('\n') == 11  # text of 12 lines
-    assert 0 <= conf <= 100
+    assert 1 <= conf <= 100

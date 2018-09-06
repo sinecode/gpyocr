@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function showHelp {
-	echo "Usage: tesseract_installer.sh {3.05, 4.00}"
+	echo "Usage: tesseract_installer.sh [OPTIONS] {3.05, 4.00}"
 	echo ""
 	echo "Bash script that install Tesseract in the system."
 	echo "You can choose between the 3.05 or 4.00 version."
@@ -14,7 +14,6 @@ function showHelp {
 }
 
 function installTesseractAndDependecies {
-
 	# Install dependecies in Ubuntu 18.04 LTS
 	if [ "$OS_NAME" == "Ubuntu" ] && [ "$OS_VERSION" == "18.04" ]; then
 		apt-get update
@@ -82,8 +81,8 @@ function installTesseract {
 		TESSERACT_ARC="3.05.02.zip"
 		TESSERACT_DIR="tesseract-3.05.02"
 	else
-		TESSERACT_ARC="4.0.0-beta.3.zip"
-		TESSERACT_DIR="tesseract-4.0.0-beta.3"
+		TESSERACT_ARC="4.0.0-beta.4.zip"
+		TESSERACT_DIR="tesseract-4.0.0-beta.4"
 	fi
 	wget https://github.com/tesseract-ocr/tesseract/archive/$TESSERACT_ARC
 	unzip $TESSERACT_ARC
@@ -138,7 +137,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 if [ "$(command -v tesseract)" ]; then
-	echo "Tesseract $(tesseract --version | grep tesseract | cut -b11-17) was found in the\
+	echo "Tesseract $(tesseract --version | grep tesseract | cut -b11-23) was found in the \
 system."
 	echo "Do you want to replace it?"
 	echo "[yes/no]"
