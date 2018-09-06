@@ -6,25 +6,25 @@ Python wrapper for `Tesseract OCR <https://github.com/tesseract-ocr/tesseract>`_
 
 Both OCR engines are Google's products. Tesseract is an open source software that needs some tweaks to get good results, especially if performed on images with poorly defined text. Google Vision OCR engine is a commercial product with much better performance, allowing you to skip the pre-processing jobs on the images.
 
-Only Python 3 is supported.
+Only Python 3.6 is supported.
 
 Usage
 #####
 
-The `gpyocr` module have two main functions:
+The ``gpyocr`` module have two main functions:
 
-- `tesseract_ocr(image, lang='', psm=None, config=''):` it returns a tuple `(<text recognized>, <confidence>)` obtained with Tesseract. The parameters are the same of the `command-line Tesseract tool <https://github.com/tesseract-ocr/tesseract/wiki/Command-Line-Usage>`_ except for the output file.
-- `google_vision_ocr(image, langs=None):` it returns a tuple `(<text recognized>, <confidence>)` obtained with Google Vision API. The `langs` parameter is a list of languages to look for during the OCR process. More information about the supported languages are described on `this page <https://cloud.google.com/vision/docs/languages>`_
+- ``tesseract_ocr(image, lang='', psm=None, config='')``: it returns a tuple (*text*, *confidence*) obtained with Tesseract. The parameters are the same of the `command-line Tesseract tool <https://github.com/tesseract-ocr/tesseract/wiki/Command-Line-Usage>`_ except for the output file.
+- ``google_vision_ocr(image, langs=None)``: it returns a tuple (*text*, *confidence*) obtained with Google Vision API. The `langs` parameter is a list of languages to look for during the OCR process. More information about the supported languages are described on `this page <https://cloud.google.com/vision/docs/languages>`_
 
 
-The parameter `image` could be:
+The parameter ``image`` could be:
 
-* a path to the image file
+* a string containing the path to the image file
 * a numpy object (OpenCV)
 * an Image object (Pillow/PIL)
 
 
-It is possible to get some informations about the Tesseract and Google Vision version found in the system with `get_tesseract_version()` and `get_google_vision_version()` respectively.
+It is possible to get some information about the Tesseract and Google Vision versions found in the system with ``get_tesseract_version()`` and ``get_google_vision_version()`` respectively.
 
 The installation of the package also provides a command-line tool, please run
 ::
@@ -37,32 +37,29 @@ for more information.
 Examples
 ########
 
-This Python script read the text in the image `tests/resources/european-test.png` on this repository.
+Examples to read the text in the image ``tests/resources/european-test.png`` on this repository.
 
 .. code-block:: python
 
-    import cv2
-    from PIL import Image
-    import gpyocr
-
-    # print ('The (quick)...', 87.14)
-    print(gpyocr.tesseract_ocr('tests/resources/european-test.png'))
-
-    # print ('The (quick) etc...', 98.00)
-    print(gpyocr.google_vision_ocr('tests/resources/european-test.png'))
-
-    # support for OpenCV library
-    print(gpyocr.tesseract_ocr(cv2.imread('tests/resources/european-test.png'))
-
-    # support for Pillow library
-    print(gpyocr.tesseract_ocr(Image.open('tests/resources/european-test.png'))
-
-    # support for tesseract parameters
-    print(gpyocr.tesseract_ocr('tests/resources/european-test.png'), lang='ita', psm=7,
-                               config='tessedit_char_whitelist=abc')
-
-    # detect Italian and English words with Google Vision
-    print(gpyocr.google_vision_ocr('tests/resources/european-test.png'), langs=['en, 'it'])
+    >>> import gpyocr
+    >>> gpyocr.tesseract_ocr('tests/resources/european-test.png')
+    ('The (quick) [brown] {fox} ... ', 87.13636363636364)
+    >>> gpyocr.google_vision_ocr('tests/resources/european-test.png')
+    ('The (quick) [brown] {fox} ... ', 98.00000190734863)
+    >>> import cv2 # support for OpenCV library
+    >>> gpyocr.tesseract_ocr(cv2.imread('tests/resources/european-test.png'))
+    ('The (quick) [brown] {fox} ... ', 87.13636363636364)
+    >>> from PIL import Image # support for Pillow library
+    >>> gpyocr.tesseract_ocr(Image.open('tests/resources/european-test.png'))
+    >>> gpyocr.tesseract_ocr(
+        'tests/resources/european-test.png'), lang='ita', psm=7,
+        config='tessedit_char_whitelist=abc'
+    )
+    ('bc aa cb  b c a ... ', 18.5)
+    >>> gpyocr.google_vision_ocr(
+        'tests/resources/european-test.png', langs=['en, 'it']
+    )
+    ('The (quick) [brown] {fox} ... ', 87.13636363636364)
 
 Please see the unit tests for more examples.
 

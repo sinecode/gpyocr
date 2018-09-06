@@ -43,7 +43,7 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
     Return a tuple (text, conf) of the recognized text.
 
     The image parameter could be:
-        - a path to the image file
+        - a string containing the path to the image file
         - a numpy object (OpenCV)
         - an Image object (Pillow/PIL)
     '''
@@ -145,7 +145,7 @@ def google_vision_ocr(image, langs=None):
     Return a tuple (text, conf) of the recognized text.
 
     The image parameter could be:
-        - a path to the image file
+        - a string containing the path to the image file
         - a numpy object (OpenCV)
         - an Image object (Pillow/PIL)
     '''
