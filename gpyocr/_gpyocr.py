@@ -82,7 +82,6 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
         tesseract_cmd.append(config)
     tesseract_cmd.append('tsv')  # tsv output to get confidence value
 
-    # execute Tesseract
     try:
         subprocess.check_output(
             tesseract_cmd, stderr=subprocess.STDOUT
@@ -99,28 +98,28 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
     # The tsv file has various columns, we are interested to the column 'conf'
     # and the column 'text'. The cells of 'text' column are concatenated and
     # with the confidence rates the average is calculated
-    text = []
+    text_lines = []
     conf = 0
-    conf_num = 0
+    words_count = 0
     with open(output_path) as f:
         reader = csv.DictReader(f, delimiter='\t', quotechar='|')
         text_line = []
         for row in reader:
-            c = float(row['conf'])
-            if c > 0:
+            word_conf = float(row['conf'])
+            if word_conf > 0:
                 text_line.append(row['text'])
-                conf += c
-                conf_num += 1
+                conf += word_conf
+                words_count += 1
             else:
-                text.append(' '.join(c for c in text_line))
+                text_lines.append(' '.join(c for c in text_line))
                 text_line = []
-        text.append(' '.join(c for c in text_line))
-    if conf_num > 0:
-        conf = conf / conf_num
+        text_lines.append(' '.join(c for c in text_line))
+    text = '\n'.join(line for line in text_lines).strip()
+    if words_count > 0:
+        conf = conf / words_count
 
     os.remove(output_path)
-    # return the tuple (text, confidence)
-    return '\n'.join(line for line in text).strip(), conf
+    return text, conf
 
 
 def _get_random_temp_file_name(ext=''):

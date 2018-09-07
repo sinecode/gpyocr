@@ -59,7 +59,7 @@ def test_tesseract_ocr(image):
     text, conf = gpyocr.tesseract_ocr(image, lang='eng', psm=4)
     assert len(text) >= 10
     assert text.count('\n') == 11  # text of 12 lines
-    assert 0 <= conf <= 100
+    assert 1 <= conf <= 100
 
 
 @pytest.mark.tesseract
@@ -72,7 +72,7 @@ def test_tesseract_ocr_whitelist(image):
     )
     for c in string.ascii_letters.replace('a', '').replace('b', ''):
         assert c not in text
-    assert 0 <= conf <= 100
+    assert 1 <= conf <= 100
 
 
 @pytest.fixture

@@ -51,6 +51,7 @@ Examples to read the text in the image ``tests/resources/european-test.png`` on 
     ('The (quick) [brown] {fox} ... ', 87.13636363636364)
     >>> from PIL import Image # support for Pillow library
     >>> gpyocr.tesseract_ocr(Image.open('tests/resources/european-test.png'))
+    ('The (quick) [brown] {fox} ... ', 87.13636363636364)
     >>> gpyocr.tesseract_ocr(
         'tests/resources/european-test.png'), lang='ita', psm=7,
         config='tessedit_char_whitelist=abc'
