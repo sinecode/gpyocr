@@ -3,6 +3,8 @@ from pkg_resources import resource_filename
 import string
 import subprocess
 from collections import namedtuple
+import shutil
+import tempfile
 
 import pytest
 import cv2
@@ -10,10 +12,20 @@ from PIL import Image
 from distutils.version import LooseVersion
 
 import gpyocr
+from .conftest import ConfTest
 
 empty_path = os.path.abspath(resource_filename('tests.resources', 'empty.png'))
 image_path = os.path.abspath(resource_filename(
     'tests.resources', 'european-test.png'
+))
+tess_out_empty = os.path.abspath(resource_filename(
+    'tests.resources', 'tess_out_empty.tsv'
+))
+tess_out = os.path.abspath(resource_filename(
+    'tests.resources', 'tess_out.tsv'
+))
+tess_out_whitelist = os.path.abspath(resource_filename(
+    'tests.resources', 'tess_out_whitelist.tsv'
 ))
 
 
@@ -22,8 +34,17 @@ image_path = os.path.abspath(resource_filename(
 ###############################################################################
 
 
+@pytest.fixture
+def tesseract_version_mock(monkeypatch):
+    if ConfTest.nomock:
+        return
+    def mockversion(*args, **kwargs):
+        return b'Tesseract 3.05.02'
+    monkeypatch.setattr(gpyocr._gpyocr.subprocess, 'check_output', mockversion)
+
+
 @pytest.mark.tesseract
-def test_tesseract_version():
+def test_tesseract_version(tesseract_version_mock):
     tesseract_name, version = gpyocr.get_tesseract_version().split(' ')
     assert tesseract_name == 'Tesseract'
     assert LooseVersion(version) >= '3.05'
@@ -41,32 +62,81 @@ def test_invalid_type_tesseract():
         gpyocr.tesseract_ocr(342)
 
 
+@pytest.fixture
+def tesseract_empty_image_mock(monkeypatch):
+    if ConfTest.nomock:
+        return
+
+    outfile = os.path.join(tempfile.gettempdir(), 't_out')
+
+    def mockprep(*args, **kwargs):
+        return outfile
+    monkeypatch.setattr(gpyocr._gpyocr, 'prepare_tesseract_output', mockprep)
+
+    def mockocr(*args, **kwargs):
+        shutil.copyfile(tess_out_empty, outfile + '.tsv')
+    monkeypatch.setattr(gpyocr._gpyocr.subprocess, 'check_output', mockocr)
+
+
+
 @pytest.mark.tesseract
 @pytest.mark.parametrize(
     'image', [empty_path, cv2.imread(empty_path), Image.open(empty_path)]
 )
-def test_empty_image_tesseract(image):
+def test_empty_image_tesseract(image, tesseract_empty_image_mock):
     text, conf = gpyocr.tesseract_ocr(image)
     assert text == ''
     assert conf == 0
+
+
+@pytest.fixture
+def tesseract_ocr_mock(monkeypatch):
+    if ConfTest.nomock:
+        return
+
+    outfile = os.path.join(tempfile.gettempdir(), 't_out')
+
+    def mockprep(*args, **kwargs):
+        return outfile
+    monkeypatch.setattr(gpyocr._gpyocr, 'prepare_tesseract_output', mockprep)
+
+    def mockocr(*args, **kwargs):
+        shutil.copyfile(tess_out, outfile + '.tsv')
+    monkeypatch.setattr(gpyocr._gpyocr.subprocess, 'check_output', mockocr)
 
 
 @pytest.mark.tesseract
 @pytest.mark.parametrize(
     'image', [image_path, cv2.imread(image_path), Image.open(image_path)]
 )
-def test_tesseract_ocr(image):
+def test_tesseract_ocr(image, tesseract_ocr_mock):
     text, conf = gpyocr.tesseract_ocr(image, lang='eng', psm=4)
     assert len(text) >= 10
     assert text.count('\n') == 11  # text of 12 lines
     assert 1 <= conf <= 100
 
 
+@pytest.fixture
+def tesseract_whitelist_mock(monkeypatch):
+    if ConfTest.nomock:
+        return
+
+    outfile = os.path.join(tempfile.gettempdir(), 't_out')
+
+    def mockprep(*args, **kwargs):
+        return outfile
+    monkeypatch.setattr(gpyocr._gpyocr, 'prepare_tesseract_output', mockprep)
+
+    def mockocr(*args, **kwargs):
+        shutil.copyfile(tess_out_whitelist, outfile + '.tsv')
+    monkeypatch.setattr(gpyocr._gpyocr.subprocess, 'check_output', mockocr)
+
+
 @pytest.mark.tesseract
 @pytest.mark.parametrize(
     'image', [image_path, cv2.imread(image_path), Image.open(image_path)]
 )
-def test_tesseract_ocr_whitelist(image):
+def test_tesseract_ocr_whitelist(image, tesseract_whitelist_mock):
     text, conf = gpyocr.tesseract_ocr(
         image, config='tessedit_char_whitelist=ab'
     )

@@ -10,16 +10,16 @@ __all__ = (
 
 
 import os
-from tempfile import gettempdir
+import tempfile
 import string
-from random import choice
+import random
 import subprocess
 import csv
 
 import cv2
 import numpy as np
 from PIL import Image
-import google.cloud.vision as vision
+from google.cloud import vision
 
 
 SUPPORTED_FORMATS = ('gif', 'png', 'jpg', 'jpeg', 'tif', 'tiff')
@@ -40,34 +40,15 @@ def get_tesseract_version():
 def tesseract_ocr(image, lang='', psm=None, config=''):
     '''Execute a call to Tesseract OCR
 
-    Return a tuple (text, conf) of the recognized text.
-
     The image parameter could be:
         - a string containing the path to the image file
         - a numpy object (OpenCV)
         - an Image object (Pillow/PIL)
-    '''
-    if isinstance(image, str):  # check if it's a valid image path
-        if not image.lower().endswith(SUPPORTED_FORMATS):
-            raise RuntimeError(f'{image} is not a valid image')
-        else:
-            image_path = image
-    else:
-        image_path = _get_random_temp_file_name(ext='jpg')
-        if isinstance(image, np.ndarray):  # save the Numpy image
-            cv2.imwrite(image_path, image)
-        elif isinstance(image, Image.Image):  # save the PIL image
-            if not image.mode.startswith('RGB'):
-                image = image.convert('RGB')
-            image.save(image_path)
-        else:
-            raise TypeError(
-                'The image could be a string containing the '
-                'path to the file, it could be a numpy '
-                'object or an Image PIL object'
-            )
 
-    output_path = _get_random_temp_file_name()
+    Return a tuple (text, confidence) obtained with Tesseract.
+    '''
+    image_path = prepare_tesseract_input(image)
+    output_path = prepare_tesseract_output()
 
     # build Tesseract command
     tesseract_cmd = ['tesseract', image_path, output_path]
@@ -93,20 +74,69 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
             os.remove(image_path)
 
     output_path += '.tsv'
+    text, conf = read_tsv_file(output_path)
+    os.remove(output_path)
+    return text, conf
 
-    # Read the file created by Tesseract containing the OCR results.
+
+def prepare_tesseract_input(image):
+    '''Prepare Tesseract input image.
+
+    The image parameter could be:
+        - a string containing the path to the image file
+        - a numpy object (OpenCV)
+        - an Image object (Pillow/PIL)
+
+    Return a string containing the path to the image
+    '''
+    if isinstance(image, str):  # check if it's a valid image path
+        if not image.lower().endswith(SUPPORTED_FORMATS):
+            raise RuntimeError(f'{image} is not a valid image')
+        return image
+    # generate a random string of 5 characters
+    fname = ''.join(random.choice(string.ascii_letters) for _ in range(5))
+    # generate a random temporary file name with .jpg extension
+    image_path = os.path.join(tempfile.gettempdir(), fname + os.extsep + 'jpg')
+
+    if isinstance(image, np.ndarray):  # save the Numpy (OpenCV) image
+        cv2.imwrite(image_path, image)
+    elif isinstance(image, Image.Image):  # save the PIL image
+        if not image.mode.startswith('RGB'):
+            image = image.convert('RGB')
+        image.save(image_path)
+    else:
+        raise TypeError(
+            'The image could be a string containing the path to the file, it '
+            'could be a numpy array (OpenCV) or an Image (Pillow) object'
+        )
+    return image_path
+
+
+def prepare_tesseract_output():
+    '''Return a random temporary file name without extension'''
+    return os.path.join(
+        tempfile.gettempdir(),
+        ''.join(random.choice(string.ascii_letters) for _ in range(5)
+    ))
+
+
+def read_tsv_file(file):
+    '''Read the TSV output file created by Tesseract
+
+    Return a tuple (text, confidence)
+    '''
     # The tsv file has various columns, we are interested to the column 'conf'
     # and the column 'text'. The cells of 'text' column are concatenated and
     # with the confidence rates the average is calculated
     text_lines = []
     conf = 0
     words_count = 0
-    with open(output_path) as f:
-        reader = csv.DictReader(f, delimiter='\t', quotechar='|')
+    with open(file) as output_file:
+        reader = csv.DictReader(output_file, delimiter='\t', quotechar='|')
         text_line = []
         for row in reader:
             word_conf = float(row['conf'])
-            if word_conf > 0:
+            if word_conf >= 0:
                 text_line.append(row['text'])
                 conf += word_conf
                 words_count += 1
@@ -117,20 +147,7 @@ def tesseract_ocr(image, lang='', psm=None, config=''):
     text = '\n'.join(line for line in text_lines).strip()
     if words_count > 0:
         conf = conf / words_count
-
-    os.remove(output_path)
     return text, conf
-
-
-def _get_random_temp_file_name(ext=''):
-    # generate a random string of 5 characters
-    fname = ''.join(
-        choice(string.digits + string.ascii_letters) for _ in range(5)
-    )
-    # generate a random temp file name
-    return os.path.join(
-        gettempdir(), fname + os.extsep + ext if ext else fname
-    )
 
 
 def get_google_vision_version():
@@ -170,10 +187,9 @@ def google_vision_ocr(image, langs=None):
         )
     # Authenticate to Google Cloud Platform
     # You have to execute:
-    # $ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/credentials-key.json
+    # $ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials-key.json
     client = vision.ImageAnnotatorClient()
 
-    # Perform the request to Google Cloud Vision
     if not langs:
         langs = ['en', 'it']
     response = client.annotate_image({
