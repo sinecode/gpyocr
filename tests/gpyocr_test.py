@@ -186,6 +186,8 @@ def test_invalid_type_google_vision():
 
 @pytest.fixture
 def google_vision_empty_image_mock(monkeypatch):
+    if ConfTest.nomock:
+        return
 
     Response = namedtuple('Response', 'full_text_annotation')
     TextAnnotation = namedtuple('TextAnnotation', 'text pages')
@@ -211,6 +213,8 @@ def test_empty_image_google_vision(image, google_vision_empty_image_mock):
 
 @pytest.fixture
 def google_vision_ocr_mock(monkeypatch):
+    if ConfTest.nomock:
+        return
 
     Response = namedtuple('Response', 'full_text_annotation')
     TextAnnotation = namedtuple('TextAnnotation', 'text pages')
