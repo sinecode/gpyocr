@@ -2,8 +2,20 @@
 Gpyocr (Google-Python-OCR)
 **************************
 
-.. image:: https://badge.fury.io/py/gpyocr.svg
-    :target: https://badge.fury.io/py/gpyocr
+.. image:: https://img.shields.io/pypi/v/gpyocr.svg
+    :target: https://pypi.org/project/gpyocr
+
+.. image:: https://img.shields.io/pypi/l/gpyocr.svg
+    :target: https://pypi.org/project/gpyocr
+
+.. image:: https://img.shields.io/pypi/pyversions/gpyocr.svg
+    :target: https://pypi.org/project/gpyocr/
+
+.. image:: https://travis-ci.org/ceccoemi/gpyocr.svg?branch=master
+    :target: https://travis-ci.org/ceccoemi/gpyocr
+
+.. image:: https://codecov.io/gh/codecov/gpyocr/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/codecov/gpyocr
 
 Python wrapper for `Tesseract OCR <https://github.com/tesseract-ocr/tesseract>`_ and `Google Vision OCR <https://cloud.google.com/vision/>`_ to perform OCR on images and get a confidence value of the results.
 
