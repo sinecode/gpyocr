@@ -1,0 +1,3 @@
+[run]
+source = gpyocr
+omit = gpyocr/__main__.py
