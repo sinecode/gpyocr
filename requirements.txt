@@ -3,3 +3,4 @@ pytest-cov
 opencv-python
 Pillow
 google-cloud-vision
+codecov

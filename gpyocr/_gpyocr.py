@@ -116,8 +116,8 @@ def prepare_tesseract_output():
     '''Return a random temporary file name without extension'''
     return os.path.join(
         tempfile.gettempdir(),
-        ''.join(random.choice(string.ascii_letters) for _ in range(5)
-    ))
+        ''.join(random.choice(string.ascii_letters) for _ in range(5))
+    )
 
 
 def read_tsv_file(file):
