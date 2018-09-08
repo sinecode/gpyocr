@@ -18,6 +18,7 @@ setup(
     keywords='OCR tesseract google vision wrapper',
     classifiers=[
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'License :: OSI Approved :: Apache Software License',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],

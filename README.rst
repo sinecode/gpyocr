@@ -15,7 +15,9 @@ Gpyocr (Google-Python-OCR)
     :target: https://travis-ci.org/ceccoemi/gpyocr
 
 .. image:: https://codecov.io/gh/ceccoemi/gpyocr/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/ceccoemi/gpyocr
+    :target: https://codecov.io/gh/ceccoemi/gpyocr
+
+
 
 Python wrapper for `Tesseract OCR <https://github.com/tesseract-ocr/tesseract>`_ and `Google Vision OCR <https://cloud.google.com/vision/>`_ to perform OCR on images and get a confidence value of the results.
 
