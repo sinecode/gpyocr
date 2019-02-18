@@ -81,8 +81,8 @@ function installTesseract {
 		TESSERACT_ARC="3.05.02.zip"
 		TESSERACT_DIR="tesseract-3.05.02"
 	else
-		TESSERACT_ARC="4.0.0-beta.4.zip"
-		TESSERACT_DIR="tesseract-4.0.0-beta.4"
+		TESSERACT_ARC="4.0.0.zip"
+		TESSERACT_DIR="tesseract-4.0.0"
 	fi
 	wget https://github.com/tesseract-ocr/tesseract/archive/$TESSERACT_ARC
 	unzip $TESSERACT_ARC
