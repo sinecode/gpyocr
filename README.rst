@@ -170,6 +170,17 @@ To get a coverage report, run
 
     $ pytest --cov --cov-report term-missing
 
+To test only the Tesseract functions run:
+
+.. code-block::
+    
+    $ pytest -m tesseract
+
+To test only the Google Cloud Vision functions run:
+
+.. code-block::
+    
+    $ pytest -m googlevision
 
 How to contribute
 #################

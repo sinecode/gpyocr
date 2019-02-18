@@ -3,7 +3,7 @@ gpyocr - Python wrapper to Tesseract OCR and Google Vision OCR
 '''
 
 
-__version__ = '0.5'
+__version__ = '1.0'
 
 
 from ._gpyocr import (
