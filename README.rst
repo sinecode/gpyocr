@@ -53,7 +53,6 @@ versions found in the system with ``get_tesseract_version()`` and
 ``get_google_vision_version()`` respectively.
 
 The installation of the package also provides a command-line tool, please run
-::
 
 .. code-block::
 
