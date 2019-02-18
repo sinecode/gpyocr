@@ -31,14 +31,14 @@ Usage
 The ``gpyocr`` module have two main functions:
 
 - ``tesseract_ocr(image, lang='', psm=None, config='')``: it returns a tuple 
-(*text*, *confidence*) obtained with Tesseract. The parameters are the same of 
-the `command-line Tesseract tool <https://github.com/tesseract-ocr/tesseract/wiki/Command-Line-Usage>`_ 
-except for the output file.
+  (*text*, *confidence*) obtained with Tesseract. The parameters are the same of 
+  the `command-line Tesseract tool <https://github.com/tesseract-ocr/tesseract/wiki/Command-Line-Usage>`_ 
+  except for the output file.
 - ``google_vision_ocr(image, langs=None)``: it returns a tuple 
-(*text*, *confidence*) obtained with Google Vision API. The `langs` parameter 
-is a list of languages to look for during the OCR process. More information 
-about the supported languages are described on 
-`this page <https://cloud.google.com/vision/docs/languages>`_
+  (*text*, *confidence*) obtained with Google Vision API. The `langs` parameter 
+  is a list of languages to look for during the OCR process. More information 
+  about the supported languages are described on 
+  `this page <https://cloud.google.com/vision/docs/languages>`_
 
 
 The parameter ``image`` could be:
