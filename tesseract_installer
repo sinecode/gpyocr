@@ -1,0 +1,177 @@
+#!/bin/bash
+
+
+function show_help {
+  printf "%s\n" \
+    "Usage: tesseract_installer {3.05, 4.1.0} [INSTALLATION_MODE]" \
+    "" \
+    "Bash script that installs Tesseract in your system." \
+    "You can choose between the 3.05 or 4.00 version." \
+    "If this script is executed in Ubuntu 18.04 or CentOS 7" \
+    "it will install the dependecies automatically." \
+    "" \
+    "Installation modes:" \
+    "    <default>          install dependencies with the package manager" \
+    "                       and then compile Leptonica and Tesseract" \
+    "                       (work only in Ubuntu 18.04 and CentOS 7)" \
+    "    --no-dependencies  compile Leptonica and Tesseract" \
+    "    --tesseract-only   install Tesseract only without any dependecies"
+}
+
+
+function install_dependencies {
+  if [ "$OS_NAME" == "Ubuntu" ] && [ "$OS_VERSION" == "18.04" ]; then
+    apt-get update
+    apt-get install wget unzip autoconf automake libtool autoconf-archive \
+      pkg-config libpng-dev libjpeg8-dev libtiff5-dev zlib1g-dev
+  elif [ "$OS_NAME" = "CentOS Linux" ] && [ "$OS_VERSION" = "7" ]; then
+    sudo yum update
+    sudo yum install wget unzip libstdc++ autoconf automake libtool \
+      autoconf-archive pkg-config gcc gcc c++ make libjpeg-devel \
+      libpng-devel libtiff-devel zlib-devel libXrender-devel libXext-devel \
+      libSM-devel
+  else
+    printf "%s\n" \
+      "Not able to install the required packages with apt or yum." \
+      "This script is tested with Ubuntu 18.04 and CentOS 7." \
+      "Please check how to install in your system these dependencies:" \
+      "" \
+      "GNU autotools" \
+      "autoconf-archive" \
+      "libpng-dev" \
+      "libtiff-dev" \
+      "libjpeg-dev" \
+      "zlib-dev" \
+      "pkg-config" \
+      "" \
+      "and then execute the script with the options" \
+      "'--tesseract-only' or '--no-dependencies'."
+  fi
+}
+
+
+function install_leptonica {
+  # Remove any previous Leptonica installation
+  rm -rf /usr/local/include/leptonica
+  rm -rf /usr/include/leptonica
+
+  # Compile Leptonica from source
+  leptonica_arc="v1.74.3.zip"
+  wget https://github.com/DanBloomberg/leptonica/archive/$leptonica_arc
+  unzip $leptonica_arc
+  leptonica_dir="leptonica-1.74.3"
+  cd $leptonica_dir
+  ./autobuild
+  ./configure
+  make
+  make install
+  ldconfig
+  cd ..
+  rm -rf $leptonica_arc $leptonica_dir
+}
+
+
+function install_tesseract {
+  # Remove any previous Tesseract installation
+  if [ "$OS_NAME"=="Ubuntu" ] || [ "$OS_NAME"=="Debian" ]; then
+    apt purge tesseract-ocr*
+    apt autoremove --purge
+  fi
+  rm -rf /usr/local/share/tessdata
+  rm -rf /usr/share/tesseract-ocr/
+  rm -rf /usr/local/lib/libtesseract*
+  rm -rf /usr/local/lib/pkgconfig/tesseract.pc
+  rm -rf /usr/local/include/tesseract
+  rm -rf /usr/local/bin/tesseract
+
+  # Compile Tesseract from source
+  if [ "$1" == "3.05" ]; then
+    tesseract_arc="3.05.02.zip"
+    tesseract_dir="tesseract-3.05.02"
+  else
+    tesseract_arc="4.1.0-rc4.zip"
+    tesseract_dir="tesseract-4.1.0-rc4"
+  fi
+  wget https://github.com/tesseract-ocr/tesseract/archive/$tesseract_arc
+  unzip $tesseract_arc
+  cd $tesseract_dir
+  ./autogen.sh
+  export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+  export LIBLEPT_HEADERSDIR=/usr/local/include
+  ./configure \
+    --with-extra-includes=/usr/local/include \
+    --with-extra-libraries=/usr/local/lib
+  export LDFLAGS="-L/usr/local/lib"
+  export TSLAGS="-I/usr/local/include"
+  make
+  make install
+  ldconfig
+  cd ..
+  rm -rf $tesseract_arc $tesseract_dir
+
+  # Install languages packs
+  # It installs:
+  # - English
+  # - Italian
+  # - OSD (Orientation Script Detection)
+  if [ "$1" == "3.05" ]; then
+    lang_ver="3.04.00"
+  else
+    lang_ver="4.00"
+  fi
+  wget https://raw.github.com/tesseract-ocr/tessdata/$lang_ver/eng.traineddata
+  wget https://raw.github.com/tesseract-ocr/tessdata/$lang_ver/ita.traineddata
+  wget https://raw.github.com/tesseract-ocr/tessdata/$lang_ver/osd.traineddata
+  mv *.traineddata /usr/local/share/tessdata/
+  echo "po'" > /usr/local/share/tessdata/ita.special-words
+}
+
+
+if [ -f /etc/os-release ]; then
+  . /etc/os-release
+  OS_NAME=$NAME
+  OS_VERSION=$VERSION_ID
+else
+  OS_NAME=""
+  OS_VERSION=""
+fi
+
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+  show_help
+  exit
+fi
+
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run the script as root"
+  exit -1
+fi
+
+
+if [ "$1" != "3.05" ] && [ "$1" != "4.1.0" ]; then
+  printf "Please specify a supported version: 3.05 or 4.1.0\n"
+  exit -1
+fi
+
+if [ "$(command -v tesseract)" ]; then
+  current_tesseract = "$(tesseract --version | grep tesseract | cut -b11-23)"
+  printf "%s\n" \
+    "Tesseract $current_tesseract was found in the system." \
+    "Do you want to replace it?" \
+    "[yes/no]"
+  read ans
+  if ! [[ $ans == y* ]]; then
+    printf "Aborted.\n"
+    exit -1
+  fi
+fi
+
+if [ -z "$2" ]; then
+  install_dependencies
+  install_leptonica
+  install_tesseract $1
+elif [ "$2" == "--no-dependencies" ]; then
+  install_leptonica
+  install_tesseract $1
+elif [ "$2" == "--tesseract-only" ]; then
+  install_tesseract $1
+fi

@@ -125,11 +125,11 @@ then run:
 
     $ sudo ./tesseract_installer.sh 3.05
 
-If you want to try Tesseract 4.00 (whitelist not working) then run:
+If you want to try Tesseract 4.1.0 then run:
 
 .. code-block::
 
-    $ sudo ./tesseract_installer.sh 4.00
+    $ sudo ./tesseract_installer.sh 4.1.0
 
 **Note**: this bash script is tested in Ubuntu 18.04 and CentOS 7; if you
 don't have these systems, there may be problems installing some dependencies.
@@ -137,7 +137,7 @@ You could install all the dependencies by your self and then run:
 
 .. code-block::
 
-    $ sudo ./tesseract_installer.sh 3.05 --tesseract-only
+    $ sudo ./tesseract_installer.sh 3.05 --no-dependencies
 
 
 To use Google Cloud Vision API, you have to authenticate with
