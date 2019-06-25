@@ -124,13 +124,13 @@ then run:
 
 .. code-block::
 
-    $ sudo ./tesseract_installer.sh 3.05
+    $ sudo ./tesseract_installer 3.05
 
 If you want to try Tesseract 4.1.0 then run:
 
 .. code-block::
 
-    $ sudo ./tesseract_installer.sh 4.1.0
+    $ sudo ./tesseract_installer 4.1.0
 
 **Note**: this bash script is tested in Ubuntu 18.04 and CentOS 7; if you
 don't have these systems, there may be problems installing some dependencies.
