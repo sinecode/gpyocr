@@ -149,7 +149,7 @@ def test_tesseract_ocr_whitelist(image, tesseract_whitelist_mock):
     )
     for c in string.ascii_letters.replace("a", "").replace("b", ""):
         assert c not in text
-    assert 1 <= conf <= 100
+    assert 0 <= conf <= 100
 
 
 @pytest.fixture
