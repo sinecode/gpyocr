@@ -1,7 +1,6 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 from gpyocr import __version__
-
 
 with open("README.rst", "r") as f:
     long_description = f.read()
@@ -17,8 +16,10 @@ setup(
     author_email="cecchini.mle@gmail.com",
     keywords="OCR tesseract google vision wrapper",
     classifiers=[
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: Apache Software License",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
