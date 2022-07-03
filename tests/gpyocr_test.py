@@ -4,10 +4,10 @@ import string
 import subprocess
 import tempfile
 from collections import namedtuple
-from distutils.version import LooseVersion
 
 import cv2
 import pytest
+from packaging.version import Version
 from PIL import Image
 from pkg_resources import resource_filename
 
@@ -50,7 +50,7 @@ def tesseract_version_mock(monkeypatch):
 def test_tesseract_version(tesseract_version_mock):
     tesseract_name, version = gpyocr.get_tesseract_version().split(" ")
     assert tesseract_name == "Tesseract"
-    assert LooseVersion(version) >= "3.05"
+    assert Version(version) >= Version("3.05")
 
 
 @pytest.mark.tesseract
@@ -178,7 +178,7 @@ def test_tesseract_error(tesseract_error_mock):
 def test_google_vision_version():
     version = gpyocr.get_google_vision_version().split(" ")
     assert version[:2] == ["Google", "Vision"]
-    assert LooseVersion(version[2]) >= "0.33.0"
+    assert Version(version[2]) >= Version("0.33.0")
 
 
 @pytest.mark.googlevision
