@@ -1,17 +1,18 @@
 import os
-from pkg_resources import resource_filename
+import shutil
 import string
 import subprocess
-from collections import namedtuple
-import shutil
 import tempfile
-
-import pytest
-import cv2
-from PIL import Image
+from collections import namedtuple
 from distutils.version import LooseVersion
 
+import cv2
+import pytest
+from PIL import Image
+from pkg_resources import resource_filename
+
 import gpyocr
+
 from .conftest import ConfTest
 
 empty_path = os.path.abspath(resource_filename("tests.resources", "empty.png"))

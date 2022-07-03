@@ -12,18 +12,17 @@ __all__ = (
 )
 
 
-import os
-import tempfile
-import string
-import random
-import subprocess
 import csv
+import os
+import random
+import string
+import subprocess
+import tempfile
 
 import cv2
 import numpy as np
-from PIL import Image
 from google.cloud import vision
-
+from PIL import Image
 
 SUPPORTED_FORMATS = ("gif", "png", "jpg", "jpeg", "tif", "tiff")
 
@@ -175,13 +174,13 @@ def google_vision_ocr(image, langs=None):
             image = image_file.read()
     elif isinstance(image, np.ndarray):
         # Encode the image to base64
-        image = cv2.imencode(".jpg", image)[1].tostring()
+        image = cv2.imencode(".jpg", image)[1].tobytes()
     elif isinstance(image, Image.Image):
         # Encode the image to base64
         if not image.mode.startswith("RGB"):
             image = image.convert("RGB")
         image = np.array(image)
-        image = cv2.imencode(".jpg", image)[1].tostring()
+        image = cv2.imencode(".jpg", image)[1].tobytes()
     else:
         raise TypeError(
             "The image could be a string containing the "
@@ -199,7 +198,7 @@ def google_vision_ocr(image, langs=None):
         {
             "image": {"content": image},
             "features": [
-                {"type": vision.enums.Feature.Type.DOCUMENT_TEXT_DETECTION}
+                {"type": vision.Feature.Type.DOCUMENT_TEXT_DETECTION}
             ],
             "image_context": {"language_hints": langs},
         }

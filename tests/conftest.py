@@ -1,6 +1,13 @@
 import pytest
 
 
+def pytest_configure(config):
+    config.addinivalue_line("markers", "tesseract: Tesseract tests")
+    config.addinivalue_line(
+        "markers", "googlevision: Google Cloud Vision tests"
+    )
+
+
 def pytest_addoption(parser):
     parser.addoption(
         "--nomock",
