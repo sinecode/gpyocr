@@ -11,9 +11,6 @@ gpyocr (Google-Python-OCR)
 .. image:: https://img.shields.io/pypi/pyversions/gpyocr.svg
     :target: https://pypi.org/project/gpyocr/
 
-.. image:: https://travis-ci.org/ceccoemi/gpyocr.svg?branch=master
-    :target: https://travis-ci.org/ceccoemi/gpyocr
-
 .. image:: https://codecov.io/gh/ceccoemi/gpyocr/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/ceccoemi/gpyocr
 
