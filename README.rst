@@ -23,8 +23,6 @@ Python wrapper for `Tesseract OCR <https://github.com/tesseract-ocr/tesseract>`_
 
 Both OCR engines are Google's products. Tesseract is an open source software that needs some tweaks to get good results, especially if performed on images with poorly defined text. Google Vision OCR engine is a commercial product with much better performance, allowing you to skip the pre-processing jobs on the images.
 
-Only Python >= 3.6 is supported.
-
 Usage
 #####
 
